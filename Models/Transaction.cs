@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ExpenseTrackerAPI.Models;
 
 public enum TransactionType
@@ -8,31 +10,41 @@ public enum TransactionType
 
 public record Transaction
 {
-    public Guid Id { get; set; }
+    /// <summary>
+    /// The unique identifier of the transaction.
+    /// <summary>
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// The name of the transaction.
     /// </summary>
+    [Required]
+    [Length(1, 255, ErrorMessage = "Name must be between 1 and 255 characters.")]
     public required string Name { get; set; }
 
     /// <summary>
     /// The description of the transaction.
     /// </summary>
-    public string? Description { get; set; }
+    [MaxLength(4096, ErrorMessage = "Description must be less than or equal to 4096 characters.")]
+    public string? Description { get; set; } = string.Empty;
 
     /// <summary>
     /// The cost of the transaction in cents.
     /// </summary>
-    public required ulong Amount { get; set; }
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
+    public required int Amount { get; set; }
 
     /// <summary>
     /// The timestamp of the transaction.
     /// </summary>
-    public required DateTime Timestamp { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// The type of the transaction.
     /// </summary>
+    [Required]
+    [EnumDataType(typeof(TransactionType))]
     public required TransactionType Type { get; set; }
 
     // Will add this later on once we have authentication in place,
@@ -43,10 +55,31 @@ public record Transaction
 
 public record TransactionDto
 {
+    /// <summary>
+    /// The name of the transaction.
+    /// </summary>
+    [Required]
+    [Length(1, 255, ErrorMessage = "Name must be between 1 and 255 characters.")]
     public required string Name { get; set; }
-    public string? Description { get; set; }
-    public required ulong Amount { get; set; }
-    public required DateTime Timestamp { get; set; }
+
+    /// <summary>
+    /// The description of the transaction.
+    /// </summary>
+    [MaxLength(4096, ErrorMessage = "Description must be less than or equal to 4096 characters.")]
+    public string? Description { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The cost of the transaction in cents.
+    /// </summary>
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
+    public required int Amount { get; set; }
+
+    /// <summary>
+    /// The type of the transaction.
+    /// </summary>
+    [Required]
+    [EnumDataType(typeof(TransactionType))]
     public required TransactionType Type { get; set; }
 }
 

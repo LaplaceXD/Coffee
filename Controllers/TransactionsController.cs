@@ -49,7 +49,6 @@ public class TransactionsController : ControllerBase
         transaction.Name = transactionDto.Name;
         transaction.Description = transactionDto.Description;
         transaction.Amount = transactionDto.Amount;
-        transaction.Timestamp = transactionDto.Timestamp;
         transaction.Type = transactionDto.Type;
 
         try
@@ -72,7 +71,6 @@ public class TransactionsController : ControllerBase
             Name = transactionDto.Name,
             Description = transactionDto.Description,
             Amount = transactionDto.Amount,
-            Timestamp = transactionDto.Timestamp,
             Type = transactionDto.Type
         };
 
