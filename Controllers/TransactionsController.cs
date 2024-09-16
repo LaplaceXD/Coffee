@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerAPI.Models;
 
@@ -16,32 +17,33 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions()
+    public async Task<Ok<IEnumerable<Transaction>>> GetTransactions()
     {
-        return await _context.Transactions.ToListAsync();
+        var transactions = await _context.Transactions.ToListAsync();
+        return TypedResults.Ok<IEnumerable<Transaction>>(transactions);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Transaction>> GetTransaction(Guid id)
+    public async Task<Results<NotFound, Ok<Transaction>>> GetTransaction(Guid id)
     {
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
-        return transaction;
+        return TypedResults.Ok(transaction);
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Transaction>> PutTransaction(Guid id, TransactionDto transactionDto)
+    public async Task<Results<NotFound, Ok<Transaction>>> PutTransaction(Guid id, TransactionDto transactionDto)
     {
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
         transaction.Name = transactionDto.Name;
@@ -56,14 +58,14 @@ public class TransactionsController : ControllerBase
         }
         catch (DbUpdateConcurrencyException) when (!TransactionExists(id))
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
-        return transaction;
+        return TypedResults.Ok(transaction);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Transaction>> PostTransaction(TransactionDto transactionDto)
+    public async Task<Created<Transaction>> PostTransaction(TransactionDto transactionDto)
     {
         var transaction = new Transaction
         {
@@ -77,23 +79,24 @@ public class TransactionsController : ControllerBase
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetTransaction), new { id = transaction.Id }, transaction);
+        var location = Url.Action(nameof(GetTransaction), new { id = transaction.Id }) ?? $"/{transaction.Id}";
+        return TypedResults.Created(location, transaction);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTransaction(Guid id)
+    public async Task<Results<NotFound, NoContent>> DeleteTransaction(Guid id)
     {
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
         _context.Transactions.Remove(transaction);
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return TypedResults.NoContent();
     }
 
     private bool TransactionExists(Guid id)
