@@ -52,7 +52,6 @@ public record Transaction
     // public int UserId { get; set; }
 }
 
-
 public record TransactionDto
 {
     /// <summary>
@@ -79,7 +78,7 @@ public record TransactionDto
     /// The type of the transaction.
     /// </summary>
     [Required]
-    [EnumDataType(typeof(TransactionType))]
+    [EnumDataType(typeof(TransactionType), ErrorMessage = "Type must be either 'Expense' or 'Income'.")]
     public required TransactionType Type { get; set; }
 }
 

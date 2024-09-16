@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTrackerAPI.Models;
 
@@ -7,6 +9,17 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<TransactionContext>(opt => opt.UseInMemoryDatabase("Transactions"));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Convert enum int values to stringified values
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
+builder.Services.Configure<JsonOptions>(options =>
+{
+    // Convert enum int values to stringified values
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 
