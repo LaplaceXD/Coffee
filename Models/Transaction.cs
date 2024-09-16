@@ -40,3 +40,14 @@ public record Transaction
     // public int UserId { get; set; }
 }
 
+
+public record TransactionDto
+{
+    public required string Name { get; set; }
+    public string? Description { get; set; }
+    public required ulong Amount { get; set; }
+    public required DateTime Timestamp { get; set; }
+    public required TransactionType Type { get; set; }
+}
+
+

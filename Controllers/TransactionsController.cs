@@ -4,13 +4,13 @@ using ExpenseTrackerAPI.Models;
 
 namespace ExpenseTrackerAPI.Controllers;
 
-[Route("api/transactions")]
 [ApiController]
-public class TransactionController : ControllerBase
+[Route("api/v1/transactions")]
+public class TransactionsController : ControllerBase
 {
     private readonly TransactionContext _context;
 
-    public TransactionController(TransactionContext context)
+    public TransactionsController(TransactionContext context)
     {
         _context = context;
     }
@@ -26,7 +26,7 @@ public class TransactionController : ControllerBase
     {
         var transaction = await _context.Transactions.FindAsync(id);
 
-        if (transaction == null)
+        if (transaction is null)
         {
             return NotFound();
         }
@@ -35,35 +35,45 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTransaction(Guid id, Transaction transaction)
+    public async Task<ActionResult<Transaction>> PutTransaction(Guid id, TransactionDto transactionDto)
     {
-        if (id != transaction.Id)
+        var transaction = await _context.Transactions.FindAsync(id);
+
+        if (transaction is null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        _context.Entry(transaction).State = EntityState.Modified;
+        transaction.Name = transactionDto.Name;
+        transaction.Description = transactionDto.Description;
+        transaction.Amount = transactionDto.Amount;
+        transaction.Timestamp = transactionDto.Timestamp;
+        transaction.Type = transactionDto.Type;
 
         try
         {
             await _context.SaveChangesAsync();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException) when (!TransactionExists(id))
         {
-            if (!TransactionExists(id))
-            {
-                return NotFound();
-            }
-
-            throw;
+            return NotFound();
         }
 
-        return NoContent();
+        return transaction;
     }
 
     [HttpPost]
-    public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)
+    public async Task<ActionResult<Transaction>> PostTransaction(TransactionDto transactionDto)
     {
+        var transaction = new Transaction
+        {
+            Name = transactionDto.Name,
+            Description = transactionDto.Description,
+            Amount = transactionDto.Amount,
+            Timestamp = transactionDto.Timestamp,
+            Type = transactionDto.Type
+        };
+
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
@@ -75,7 +85,7 @@ public class TransactionController : ControllerBase
     {
         var transaction = await _context.Transactions.FindAsync(id);
 
-        if (transaction == null)
+        if (transaction is null)
         {
             return NotFound();
         }
