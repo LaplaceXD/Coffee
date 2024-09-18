@@ -49,7 +49,7 @@ public class TransactionsController : ControllerBase
         transaction.Name = transactionDto.Name;
         transaction.Description = transactionDto.Description;
         transaction.Amount = transactionDto.Amount;
-        transaction.Type = transactionDto.Type;
+        transaction.Type = Enum.Parse<TransactionType>(transactionDto.Type, true);
 
         try
         {
@@ -71,7 +71,7 @@ public class TransactionsController : ControllerBase
             Name = transactionDto.Name,
             Description = transactionDto.Description,
             Amount = transactionDto.Amount,
-            Type = transactionDto.Type
+            Type = Enum.Parse<TransactionType>(transactionDto.Type, true)
         };
 
         _context.Transactions.Add(transaction);
