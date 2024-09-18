@@ -6,21 +6,14 @@ using ExpenseTrackerAPI.Models;
 namespace ExpenseTrackerAPI.Controllers;
 
 /// <summary>Controller for managing transactions.</summary>
+/// <param name="context">The transaction context.</param>
+/// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/[controller]")]
-public class TransactionsController : ControllerBase
+public class TransactionsController(TransactionContext context, ILogger<TransactionsController> logger) : ControllerBase
 {
-    private readonly TransactionContext _context;
-    private readonly ILogger<TransactionsController> _logger;
-
-    /// <summary>Initializes a new instance of the <see cref="TransactionsController"/> class.</summary>
-    /// <param name="context">The transaction context.</param>
-    /// <param name="logger">The logger.</param>
-    public TransactionsController(TransactionContext context, ILogger<TransactionsController> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
+    private readonly TransactionContext _context = context;
+    private readonly ILogger<TransactionsController> _logger = logger;
 
     /// <summary>Get all transactions.</summary>
     /// <param name="type">The type of transactions to get.</param>
