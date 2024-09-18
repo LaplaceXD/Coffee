@@ -1,7 +1,7 @@
+namespace ExpenseTrackerAPI.Models;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-
-namespace ExpenseTrackerAPI.Models;
 
 /// <summary>The type of a transaction.</summary>
 public enum TransactionType
