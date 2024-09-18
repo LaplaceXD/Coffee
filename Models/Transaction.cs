@@ -13,7 +13,7 @@ public enum TransactionType
 }
 
 /// <summary>A transaction model.</summary>
-public record Transaction
+public class Transaction
 {
     /// <summary>The unique identifier of the transaction.</summary>
     [Key]
@@ -71,5 +71,3 @@ public record TransactionDto
     [EnumDataType(typeof(TransactionType), ErrorMessage = "Type must be either 'Expense' or 'Income'.")]
     public required string Type { get; set; }
 }
-
-
