@@ -5,17 +5,24 @@ using ExpenseTrackerAPI.Models;
 
 namespace ExpenseTrackerAPI.Controllers;
 
+/// <summary>Controller for managing transactions.</summary>
 [ApiController]
 [Route("api/v1/transactions")]
 public class TransactionsController : ControllerBase
 {
     private readonly TransactionContext _context;
 
+    /// <summary>Initializes a new instance of the <see cref="TransactionsController"/> class.</summary>
+    /// <param name="context">The transaction context.</param>
     public TransactionsController(TransactionContext context)
     {
         _context = context;
     }
 
+    /// <summary>Get all transactions.</summary>
+    /// <returns>All transactions.</returns>
+    ///
+    /// <response code="200">All transactions.</response>
     [HttpGet]
     public async Task<Ok<IEnumerable<Transaction>>> GetTransactions()
     {
@@ -23,6 +30,12 @@ public class TransactionsController : ControllerBase
         return TypedResults.Ok<IEnumerable<Transaction>>(transactions);
     }
 
+    /// <summary>Get a transaction by its ID.</summary>
+    /// <param name="id">The ID of the transaction to get.</param>
+    /// <returns>The transaction with the specified ID.</returns>
+    /// 
+    /// <response code="200">The transaction with the specified ID.</response>
+    /// <response code="404">No transaction with the specified ID was found.</response>
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -38,6 +51,14 @@ public class TransactionsController : ControllerBase
         return TypedResults.Ok(transaction);
     }
 
+    /// <summary>Update a transaction by its ID.</summary>
+    /// <param name="id">The ID of the transaction to update.</param>
+    /// <param name="transactionDto">The updated transaction data.</param>
+    /// <returns>No content.</returns>
+    ///
+    /// <response code="204">The transaction was updated successfully.</response>
+    /// <response code="404">No transaction with the specified ID was found.</response>
+    /// <response code="400">The transaction data was invalid.</response>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -68,6 +89,13 @@ public class TransactionsController : ControllerBase
         return TypedResults.Ok(transaction);
     }
 
+    /// <summary>Create a new transaction.</summary>
+    /// <param name="transactionDto">The transaction data.</param>
+    /// <returns>The created transaction.</returns>
+    ///
+    /// <response code="201">The transaction was created successfully.</response>
+    /// <response code="400">The transaction data was invalid.</response>
+    /// <response code="404">No transaction with the specified ID was found.</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,6 +116,13 @@ public class TransactionsController : ControllerBase
         return TypedResults.Created(location, transaction);
     }
 
+    /// <summary>Delete a transaction by its ID.</summary>
+    /// <param name="id">The ID of the transaction to delete.</param>
+    /// <returns>No content.</returns>
+    ///
+    /// <response code="204">The transaction was deleted successfully.</response>
+    /// <response code="404">No transaction with the specified ID was found.</response>
+    /// <response code="400">The transaction data was invalid.</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -106,6 +141,9 @@ public class TransactionsController : ControllerBase
         return TypedResults.NoContent();
     }
 
+    /// <summary>Check if a transaction exists by its ID.</summary>
+    /// <param name="id">The ID of the transaction to check.</param>
+    /// <returns>True if the transaction exists, false otherwise.</returns>
     private bool TransactionExists(Guid id)
     {
         return _context.Transactions.Any(e => e.Id == id);
