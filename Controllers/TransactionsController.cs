@@ -24,6 +24,8 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<Results<NotFound, Ok<Transaction>>> GetTransaction(Guid id)
     {
         var transaction = await _context.Transactions.FindAsync(id);
@@ -37,6 +39,9 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Results<NotFound, Ok<Transaction>>> PutTransaction(Guid id, TransactionDto transactionDto)
     {
         var transaction = await _context.Transactions.FindAsync(id);
@@ -64,6 +69,8 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Created<Transaction>> PostTransaction(TransactionDto transactionDto)
     {
         var transaction = new Transaction
@@ -82,6 +89,8 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<Results<NotFound, NoContent>> DeleteTransaction(Guid id)
     {
         var transaction = await _context.Transactions.FindAsync(id);

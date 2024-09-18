@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 namespace ExpenseTrackerAPI.Models;
 
@@ -32,6 +33,7 @@ public record Transaction
     /// <summary>
     /// The cost of the transaction in cents.
     /// </summary>
+    [Description("The cost of the transaction in cents.")]
     [Required(ErrorMessage = "Amount is required.")]
     [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
     public required int Amount { get; set; }
@@ -57,6 +59,7 @@ public record TransactionDto
     /// The name of the transaction.
     /// </summary>
     [Required(ErrorMessage = "Name is required.")]
+    [DefaultValue("Lunch.")]
     [StringLength(255, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 255 characters.")]
     public required string Name { get; set; }
 
@@ -70,6 +73,7 @@ public record TransactionDto
     /// The cost of the transaction in cents.
     /// </summary>
     [Required(ErrorMessage = "Amount is required.")]
+    [DefaultValue(100)]
     [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
     public required int Amount { get; set; }
 
@@ -77,6 +81,7 @@ public record TransactionDto
     /// The type of the transaction.
     /// </summary>
     [Required(ErrorMessage = "Type is required.")]
+    [DefaultValue(TransactionType.Expense)]
     [EnumDataType(typeof(TransactionType), ErrorMessage = "Type must be either 'Expense' or 'Income'.")]
     public required string Type { get; set; }
 }
