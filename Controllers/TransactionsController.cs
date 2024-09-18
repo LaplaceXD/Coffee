@@ -11,12 +11,15 @@ namespace ExpenseTrackerAPI.Controllers;
 public class TransactionsController : ControllerBase
 {
     private readonly TransactionContext _context;
+    private readonly ILogger<TransactionsController> _logger;
 
     /// <summary>Initializes a new instance of the <see cref="TransactionsController"/> class.</summary>
     /// <param name="context">The transaction context.</param>
-    public TransactionsController(TransactionContext context)
+    /// <param name="logger">The logger.</param>
+    public TransactionsController(TransactionContext context, ILogger<TransactionsController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     /// <summary>Get all transactions.</summary>
@@ -24,9 +27,13 @@ public class TransactionsController : ControllerBase
     ///
     /// <response code="200">All transactions.</response>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<Ok<IEnumerable<Transaction>>> GetTransactions()
     {
+        _logger.LogInformation("Retrieving all transactions.");
         var transactions = await _context.Transactions.ToListAsync();
+
+        _logger.LogInformation($"Successfully retrieved {transactions.Count} transactions.");
         return TypedResults.Ok<IEnumerable<Transaction>>(transactions);
     }
 
@@ -41,13 +48,16 @@ public class TransactionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<Results<NotFound, Ok<Transaction>>> GetTransaction(Guid id)
     {
+        _logger.LogInformation($"Retrieving transaction with ID {id}.");
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
+            _logger.LogInformation($"No transaction with ID {id} was found.");
             return TypedResults.NotFound();
         }
 
+        _logger.LogInformation($"Successfully retrieved transaction with ID {id}.");
         return TypedResults.Ok(transaction);
     }
 
@@ -65,13 +75,16 @@ public class TransactionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Results<NotFound, Ok<Transaction>>> PutTransaction(Guid id, TransactionDto transactionDto)
     {
+        _logger.LogInformation($"Updating transaction with ID {id}.");
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
+            _logger.LogInformation($"No transaction with ID {id} was found.");
             return TypedResults.NotFound();
         }
 
+        _logger.LogInformation($"Updating transaction with ID {id} with data: {transactionDto}.");
         transaction.Name = transactionDto.Name;
         transaction.Description = transactionDto.Description;
         transaction.Amount = transactionDto.Amount;
@@ -79,13 +92,16 @@ public class TransactionsController : ControllerBase
 
         try
         {
+            _logger.LogInformation($"Saving changes to transaction with ID {id}.");
             await _context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException) when (!TransactionExists(id))
         {
+            _logger.LogWarning($"No transaction with ID {id} was found.");
             return TypedResults.NotFound();
         }
 
+        _logger.LogInformation($"Successfully updated transaction with ID {id}.");
         return TypedResults.Ok(transaction);
     }
 
@@ -101,6 +117,7 @@ public class TransactionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Created<Transaction>> PostTransaction(TransactionDto transactionDto)
     {
+        _logger.LogInformation($"Creating transaction with data: {transactionDto}.");
         var transaction = new Transaction
         {
             Name = transactionDto.Name,
@@ -109,9 +126,11 @@ public class TransactionsController : ControllerBase
             Type = Enum.Parse<TransactionType>(transactionDto.Type, true)
         };
 
+        _logger.LogInformation($"Adding transaction with data: {transactionDto}.");
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync();
 
+        _logger.LogInformation($"Successfully created transaction with ID {transaction.Id}.");
         var location = Url.Action(nameof(GetTransaction), new { id = transaction.Id }) ?? $"/{transaction.Id}";
         return TypedResults.Created(location, transaction);
     }
@@ -122,22 +141,25 @@ public class TransactionsController : ControllerBase
     ///
     /// <response code="204">The transaction was deleted successfully.</response>
     /// <response code="404">No transaction with the specified ID was found.</response>
-    /// <response code="400">The transaction data was invalid.</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<Results<NotFound, NoContent>> DeleteTransaction(Guid id)
     {
+        _logger.LogInformation($"Deleting transaction with ID {id}.");
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
+            _logger.LogInformation($"No transaction with ID {id} was found.");
             return TypedResults.NotFound();
         }
 
+        _logger.LogInformation($"Deleting transaction with ID {id}.");
         _context.Transactions.Remove(transaction);
         await _context.SaveChangesAsync();
 
+        _logger.LogInformation($"Successfully deleted transaction with ID {id}.");
         return TypedResults.NoContent();
     }
 
