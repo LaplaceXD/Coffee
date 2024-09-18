@@ -100,6 +100,7 @@ public class TransactionsController(TransactionContext context, ILogger<Transact
         }
 
         _logger.LogInformation("Updating transaction with ID {} with data: {}.", id, transactionDto);
+        _context.Entry(transaction).State = EntityState.Modified;
         transaction.Name = transactionDto.Name;
         transaction.Description = transactionDto.Description;
         transaction.Amount = transactionDto.Amount;
