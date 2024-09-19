@@ -32,7 +32,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "ExpenseTrackerAPI",
         Version = "v1",
-        Description = "A simple API to track expenses and transactions."
+        Description = "A simple API to track expenses and income."
     });
 
     c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
