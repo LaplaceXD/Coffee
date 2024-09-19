@@ -1,6 +1,6 @@
-namespace ExpenseTrackerAPI.Models;
-
 using System.ComponentModel.DataAnnotations;
+
+namespace ExpenseTrackerAPI.Models;
 
 /// <summary>A data transfer object for registering a user.</summary>
 public record UserRegisterDto

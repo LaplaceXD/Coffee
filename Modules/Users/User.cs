@@ -1,6 +1,6 @@
-namespace ExpenseTrackerAPI.Models;
-
 using System.ComponentModel.DataAnnotations;
+
+namespace ExpenseTrackerAPI.Models;
 using BCrypt.Net;
 
 /// <summary>A user model.</summary>

@@ -1,6 +1,6 @@
-namespace ExpenseTrackerAPI.Models;
-
 using Microsoft.EntityFrameworkCore;
+
+namespace ExpenseTrackerAPI.Models;
 
 /// <summary>The user context.</summary>
 public class UserContext(DbContextOptions<UserContext> options) : DbContext(options)

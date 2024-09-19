@@ -1,10 +1,10 @@
-namespace ExpenseTrackerAPI.Controllers;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 using ExpenseTrackerAPI.Models;
+
+namespace ExpenseTrackerAPI.Controllers;
 
 /// <summary>Controller for managing transactions.</summary>
 /// <param name="context">The transaction context.</param>

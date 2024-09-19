@@ -1,11 +1,11 @@
-namespace ExpenseTrackerAPI.Controllers;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Common;
+
+namespace ExpenseTrackerAPI.Controllers;
 
 /// <summary>Controller for managing authentication.</summary>
 /// <param name="userContext">The user context.</param>

@@ -1,6 +1,6 @@
-namespace ExpenseTrackerAPI.Models;
-
 using Microsoft.EntityFrameworkCore;
+
+namespace ExpenseTrackerAPI.Models;
 
 /// <summary>The transaction context.</summary>
 /// <param name="options">The options for this context.</param>
