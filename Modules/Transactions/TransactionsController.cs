@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using ExpenseTrackerAPI.Dtos;
 using ExpenseTrackerAPI.Models;
 
 namespace ExpenseTrackerAPI.Controllers;

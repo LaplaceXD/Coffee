@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using ExpenseTrackerAPI.Models;
 
-namespace ExpenseTrackerAPI.Models;
+namespace ExpenseTrackerAPI.Dtos;
 
 /// <summary>A data transfer object for a transaction.</summary>
 public record TransactionDto
