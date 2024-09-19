@@ -1,5 +1,6 @@
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,7 +23,7 @@ public class JwtService(IOptions<JwtOptions> options) : IJwtService
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            claims: [new(JwtRegisteredClaimNames.Sub, id)],
+            claims: [new(ClaimTypes.NameIdentifier, id)],
             expires: DateTime.Now.AddMinutes(_options.ExpiryMinutes),
             signingCredentials: creds
         );

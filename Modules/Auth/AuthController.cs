@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Common;
-using ExpenseTrackerAPI.Auth;
+using ExpenseTrackerAPI.Interfaces;
 
 namespace ExpenseTrackerAPI.Controllers;
 
