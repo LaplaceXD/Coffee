@@ -67,7 +67,7 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<Results<BadRequest, Conflict<ErrorResponse>, Ok<UserDto>>> Register(UserRegisterDto userRegisterDto)
+    public async Task<Results<BadRequest, Conflict<ErrorResponse>, Ok<User>>> Register(UserRegisterDto userRegisterDto)
     {
         _logger.LogInformation("Registering user {}.", userRegisterDto.Email);
 
@@ -92,11 +92,6 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
         await _userContext.SaveChangesAsync();
 
         _logger.LogInformation("User {} registered.", user.Id);
-        return TypedResults.Ok(new UserDto
-        {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email
-        });
+        return TypedResults.Ok(user);
     }
 }

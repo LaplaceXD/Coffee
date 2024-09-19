@@ -11,6 +11,13 @@ public class UserContext(DbContextOptions<UserContext> options) : DbContext(opti
     /// <summary>Configure the user model.</summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Transactions)
+            .WithOne(t => t.User)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

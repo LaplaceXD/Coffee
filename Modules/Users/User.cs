@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace ExpenseTrackerAPI.Models;
+
+using System.Text.Json.Serialization;
 using BCrypt.Net;
 
 /// <summary>A user model.</summary>
@@ -23,11 +25,16 @@ public class User
 
     private string _password = string.Empty;
     /// <summary>The password of the user.</summary>
-    public required string Password
+    [JsonIgnore]
+    public string Password
     {
         get => throw new NotSupportedException("Passwords should never be read.");
         set => _password = BCrypt.EnhancedHashPassword(value);
     }
+
+    /// <summary>The transactions of the user.</summary>
+    [JsonIgnore]
+    public ICollection<Transaction> Transactions { get; set; } = [];
 
     /// <summary>Verify a password.</summary>
     /// <param name="password">The password to verify.</param>
