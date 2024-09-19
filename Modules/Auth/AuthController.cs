@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Common;
+using ExpenseTrackerAPI.Auth;
 
 namespace ExpenseTrackerAPI.Controllers;
 
@@ -19,6 +20,7 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
 
     /// <summary>Login a user.</summary>
     /// <param name="userLoginDto">The user login data.</param>
+    /// <param name="jwtService">The JWT service for working with user token.</param>
     /// <returns>The logged in user.</returns>
     ///
     /// <response code="200">The user was logged in successfully.</response>
@@ -26,7 +28,7 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     [HttpPost("login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<BadRequest<ErrorResponse>, Ok<UserTokenDto>>> Login(UserLoginDto userLoginDto)
+    public async Task<Results<BadRequest<ErrorResponse>, Ok<UserTokenDto>>> Login(UserLoginDto userLoginDto, [FromServices] IJwtService jwtService)
     {
         _logger.LogInformation("Logging in user {}.", userLoginDto.Email);
 
@@ -46,13 +48,16 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
             return TypedResults.BadRequest(new ErrorResponse { Message = "Invalid user credentials." });
         }
 
+        _logger.LogInformation("Generating access token of user {}...", user.Id);
+        var token = jwtService.GenerateToken(user.Id.ToString());
+
         _logger.LogInformation("User {} logged in.", user.Id);
-        return TypedResults.Ok(new UserTokenDto { Token = "TODO" });
+        return TypedResults.Ok(new UserTokenDto { Token = token });
     }
 
     /// <summary>Register a user.</summary>
-    /// <param name="userRegisterDto">The user registration data.</param>
     /// <returns>The registered user.</returns>
+    /// <param name="userRegisterDto">The user registration data.</param>
     ///
     /// <response code="200">The user was successfully registered.</response>
     /// <response code="400">The data passed was invalid.</response>
