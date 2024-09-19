@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerAPI.Controllers;
 

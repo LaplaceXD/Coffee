@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using BC = BCrypt.Net.BCrypt; // Class and namespace have the same name, so we use an alias, or else it will conflict.
 
 namespace ExpenseTrackerAPI.Models;
-
-using System.Text.Json.Serialization;
-using BCrypt.Net;
 
 /// <summary>A user model.</summary>
 public class User
@@ -29,7 +28,7 @@ public class User
     public string Password
     {
         get => throw new NotSupportedException("Passwords should never be read.");
-        set => _password = BCrypt.EnhancedHashPassword(value);
+        set => _password = BC.EnhancedHashPassword(value);
     }
 
     /// <summary>The transactions of the user.</summary>
@@ -41,6 +40,6 @@ public class User
     /// <returns>True if the password is correct, otherwise false.</returns>
     public bool VerifyPassword(string password)
     {
-        return BCrypt.EnhancedVerify(password, _password);
+        return BC.EnhancedVerify(password, _password);
     }
 }
