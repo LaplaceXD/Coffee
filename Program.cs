@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 
-using ExpenseTrackerAPI.Auth;
+using ExpenseTrackerAPI.Interfaces;
+using ExpenseTrackerAPI.Options;
+using ExpenseTrackerAPI.Services;
 using ExpenseTrackerAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);

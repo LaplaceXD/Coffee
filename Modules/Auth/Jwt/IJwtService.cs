@@ -1,4 +1,4 @@
-namespace ExpenseTrackerAPI.Auth;
+namespace ExpenseTrackerAPI.Interfaces;
 
 /// <summary>An interface for a JWT service.</summary>
 public interface IJwtService

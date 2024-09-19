@@ -3,7 +3,10 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ExpenseTrackerAPI.Auth;
+using ExpenseTrackerAPI.Options;
+using ExpenseTrackerAPI.Interfaces;
+
+namespace ExpenseTrackerAPI.Services;
 
 /// <summary>A service for generating JWT tokens.</summary>
 public class JwtService(IOptions<JwtOptions> options) : IJwtService

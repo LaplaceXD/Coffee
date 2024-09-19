@@ -1,4 +1,4 @@
-namespace ExpenseTrackerAPI.Auth;
+namespace ExpenseTrackerAPI.Options;
 
 /// <summary>The options for the JWT.</summary>
 public record JwtOptions
