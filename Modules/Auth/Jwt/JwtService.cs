@@ -20,8 +20,6 @@ public class JwtService(IOptions<JwtOptions> options) : IJwtService
 
         var token = new JwtSecurityToken(
             claims: [new(JwtRegisteredClaimNames.Sub, id)],
-            issuer: _options.Issuer,
-            audience: _options.Audience,
             expires: DateTime.Now.AddMinutes(_options.ExpiryMinutes),
             signingCredentials: creds
         );

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Reflection;
 using System.Text;
 
 using Microsoft.OpenApi.Models;
@@ -28,6 +29,33 @@ builder.Services.AddSwaggerGen(c =>
         Description = "A simple API to track expenses and transactions."
     });
 
+    c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        In = ParameterLocation.Header,
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                },
+                Scheme = SecuritySchemeType.OAuth2.ToString(),
+                Name = JwtBearerDefaults.AuthenticationScheme,
+                In = ParameterLocation.Header
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var filePath = Path.Combine(AppContext.BaseDirectory, "ExpenseTrackerAPI.xml");
     c.IncludeXmlComments(filePath);
 });
@@ -57,11 +85,13 @@ builder.Services.AddAuthentication(opts =>
     {
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
-        ValidateIssuer = true,
-        ValidateAudience = true,
+        ValidateIssuer = false,
+        ValidateAudience = false,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
     };
 });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -73,6 +103,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

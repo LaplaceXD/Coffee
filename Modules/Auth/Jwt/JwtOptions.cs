@@ -11,10 +11,4 @@ public record JwtOptions
 
     /// <summary>The expiry time in minutes for the JWT.</summary>
     public required int ExpiryMinutes { get; set; }
-
-    /// <summary>The issuer of the JWT.</summary>
-    public required string Issuer { get; set; }
-
-    /// <summary>The audience of the JWT.</summary>
-    public required string Audience { get; set; }
 }
