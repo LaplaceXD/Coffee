@@ -30,7 +30,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     /// <response code="400">Invalid transaction type.</response>
     [HttpGet]
     [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<Transaction>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<Results<BadRequest, Ok<IEnumerable<Transaction>>>> GetTransactions([FromQuery] string? type)
     {
@@ -66,7 +66,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     /// <response code="403">The user does not have access to the transaction with the specified ID.</response>
     /// <response code="404">No transaction with the specified ID was found.</response>
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Transaction), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -168,7 +168,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     /// <response code="400">The transaction data was invalid.</response>
     /// <response code="401">The user is not authenticated.</response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Transaction), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<Results<UnauthorizedHttpResult, Created<Transaction>>> PostTransaction(TransactionDto transactionDto)

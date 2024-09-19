@@ -27,7 +27,7 @@ public class MeController(ILogger<MeController> logger, IAuthService authService
     /// <response code="200">The currently authenticated user.</response>
     /// <response code="401">The user is not authenticated.</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<Results<UnauthorizedHttpResult, Ok<User>>> Get()
     {
@@ -51,7 +51,7 @@ public class MeController(ILogger<MeController> logger, IAuthService authService
     /// <response code="400">Invalid transaction type.</response>
     /// <response code="401">The user is not authenticated.</response>
     [HttpGet("transactions")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<Transaction>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<Results<BadRequest, UnauthorizedHttpResult, Ok<IEnumerable<Transaction>>>> GetTransactions([FromQuery] string? type)

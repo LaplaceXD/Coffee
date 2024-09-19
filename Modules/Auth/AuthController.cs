@@ -27,8 +27,8 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     /// <response code="200">The user was logged in successfully.</response>
     /// <response code="400">Invalid user credentials.</response>
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(UserTokenDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<Results<BadRequest<ErrorResponse>, Ok<UserTokenDto>>> Login(UserLoginDto userLoginDto, [FromServices] IJwtService jwtService)
     {
         _logger.LogInformation("Logging in user {}.", userLoginDto.Email);
@@ -64,9 +64,9 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     /// <response code="400">The data passed was invalid.</response>
     /// <response code="409">The user already exists.</response>
     [HttpPost("register")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
     public async Task<Results<BadRequest, Conflict<ErrorResponse>, Ok<User>>> Register(UserRegisterDto userRegisterDto)
     {
         _logger.LogInformation("Registering user {}.", userRegisterDto.Email);
