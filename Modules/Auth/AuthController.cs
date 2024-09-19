@@ -62,7 +62,7 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     ///
     /// <response code="200">The user was successfully registered.</response>
     /// <response code="400">The data passed was invalid.</response>
-    /// <response code="409">The user already exists.</response>
+    /// <response code="409">The data passed has conflicting values.</response>
     [HttpPost("register")]
     [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -77,8 +77,8 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
 
         if (existingUser is not null)
         {
-            _logger.LogInformation("User {} already exists.", userRegisterDto.Email);
-            return TypedResults.Conflict(new ErrorResponse { Message = "User already exists." });
+            _logger.LogInformation("User with the same email {} already exists.", userRegisterDto.Email);
+            return TypedResults.Conflict(new ErrorResponse { Message = "Email is already in-use." });
         }
 
         var user = new User
