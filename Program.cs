@@ -85,7 +85,7 @@ builder.Services.Configure<JsonOptions>(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.Section));
 builder
     .Services.AddAuthentication(opts =>
     {
@@ -119,22 +119,29 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
 app.Use(
     async (context, next) =>
     {
+        var timeStarted = DateTime.Now;
+
         await next();
+
+        var timeElapsed = DateTime.Now - timeStarted;
+
         app.Logger.LogInformation(
-            "[{:yyyy-MM-dd HH:mm:ss}] {} {} => {}",
+            "[{:yyyy-MM-dd HH:mm:ss}] {} {} => {} {} ms",
             DateTime.Now,
             context.Request.Method,
             context.Request.Path,
-            context.Response.StatusCode
+            context.Response.StatusCode,
+            timeElapsed.TotalMilliseconds
         );
     }
 );
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();
