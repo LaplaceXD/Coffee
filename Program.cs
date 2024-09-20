@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 using ExpenseTrackerAPI.Interfaces;
 using ExpenseTrackerAPI.Options;
@@ -22,8 +23,21 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddRouting(opts => opts.LowercaseUrls = true);
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<TransactionContext>(opt => opt.UseInMemoryDatabase("Transactions"));
-builder.Services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase("Users"));
+var dbContextBuilder = new Action<DbContextOptionsBuilder>(opt =>
+{
+    opt.UseSqlite("DataSource=file::memory:?cache=shared");
+
+    if (builder.Environment.IsDevelopment())
+    {
+        opt.LogTo(
+            Console.WriteLine,
+            LogLevel.Debug,
+            DbContextLoggerOptions.DefaultWithLocalTime | DbContextLoggerOptions.SingleLine);
+    }
+});
+
+builder.Services.AddDbContext<TransactionContext>(dbContextBuilder);
+builder.Services.AddDbContext<UserContext>(dbContextBuilder);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

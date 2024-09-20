@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using BC = BCrypt.Net.BCrypt; // Class and namespace have the same name, so we use an alias, or else it will conflict.
 
 namespace ExpenseTrackerAPI.Models;
 
 /// <summary>A user model.</summary>
+[Table("Users")]
 public class User
 {
     /// <summary>The unique identifier of the user.</summary>

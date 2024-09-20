@@ -22,11 +22,11 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     private readonly IAuthService _authService = authService;
     private readonly ILogger<TransactionsController> _logger = logger;
 
-    /// <summary>Get the transactions of the currently authenticated user.</summary>
+    /// <summary>Get all the transactions in the system or based on a filter.</summary>
     /// <param name="type">The type of transactions to filter by.</param>
-    /// <returns>The transactions of the currently authenticated user.</returns>
+    /// <returns>The list of transactions.</returns>
     ///
-    /// <response code="200">The transactions of the currently authenticated user.</response>
+    /// <response code="200">The transactions available in the system.</response>
     /// <response code="400">Invalid transaction type.</response>
     [HttpGet]
     [AllowAnonymous]
@@ -50,7 +50,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
 
         _logger.LogInformation("Retrieving transactions...");
         var transactions = await transactionsQuery
-            .OrderByDescending(t => t.Timestamp)
+            .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
         _logger.LogInformation("Successfully retrieved {} transactions.", transactions.Count);
@@ -88,7 +88,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
             return TypedResults.NotFound();
         }
 
-        if (transaction.UserId != user.Id)
+        if (transaction.OwnerId != user.Id)
         {
             _logger.LogInformation("User {} does not have access to transaction with ID {}.", user.Id, id);
             return TypedResults.Forbid();
@@ -132,7 +132,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
             return TypedResults.NotFound();
         }
 
-        if (transaction.UserId != user.Id)
+        if (transaction.OwnerId != user.Id)
         {
             _logger.LogInformation("User {} does not have access to transaction with ID {}.", user.Id, id);
             return TypedResults.Forbid();
@@ -184,7 +184,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
         var transaction = new Transaction
         {
             Name = transactionDto.Name,
-            UserId = user.Id,
+            OwnerId = user.Id,
             Description = transactionDto.Description,
             Amount = transactionDto.Amount,
             Type = Enum.Parse<TransactionType>(transactionDto.Type, true)
@@ -230,7 +230,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
             return TypedResults.NotFound();
         }
 
-        if (transaction.UserId != user.Id)
+        if (transaction.OwnerId != user.Id)
         {
             _logger.LogInformation("User {} does not have access to transaction with ID {}.", user.Id, id);
             return TypedResults.Forbid();

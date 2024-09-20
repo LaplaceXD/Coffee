@@ -64,7 +64,7 @@ public class MeController(ILogger<MeController> logger, IAuthService authService
         }
 
         var transactionsQuery = _transactionContext.Transactions
-            .Where(t => t.UserId == user.Id);
+            .Where(t => t.OwnerId == user.Id);
 
         if (type is not null)
         {
@@ -80,7 +80,7 @@ public class MeController(ILogger<MeController> logger, IAuthService authService
 
         _logger.LogInformation("Retrieving transactions for user {}.", user.Id);
         var transactions = await transactionsQuery
-            .OrderByDescending(t => t.Timestamp)
+            .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
         _logger.LogInformation("Successfully retrieved {} transactions.", transactions.Count);
