@@ -10,19 +10,19 @@ using Microsoft.EntityFrameworkCore;
 namespace ExpenseTrackerAPI.Controllers;
 
 /// <summary>Controller for managing transactions.</summary>
-/// <param name="transactionContext">The transaction context.</param>
+/// <param name="dbContext">The database context.</param>
 /// <param name="authService">The authentication service.</param>
 /// <param name="logger">The logger.</param>
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TransactionsController(
-    TransactionContext transactionContext,
+    ApplicationDbContext dbContext,
     IAuthService authService,
     ILogger<TransactionsController> logger
 ) : ControllerBase
 {
-    private readonly TransactionContext _transactionContext = transactionContext;
+    private readonly ApplicationDbContext _dbContext = dbContext;
     private readonly IAuthService _authService = authService;
     private readonly ILogger<TransactionsController> _logger = logger;
 
@@ -40,7 +40,7 @@ public class TransactionsController(
         Results<BadRequest<ErrorResponse>, Ok<IEnumerable<Transaction>>>
     > GetTransactions([FromQuery] string? type)
     {
-        var transactionsQuery = _transactionContext.Transactions.AsQueryable();
+        var transactionsQuery = _dbContext.Transactions.AsQueryable();
 
         if (type is not null)
         {
@@ -90,7 +90,7 @@ public class TransactionsController(
         }
 
         _logger.LogInformation("Retrieving transaction with ID {}.", id);
-        var transaction = await _transactionContext.Transactions.FindAsync(id);
+        var transaction = await _dbContext.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
@@ -142,7 +142,7 @@ public class TransactionsController(
         }
 
         _logger.LogInformation("Updating transaction with ID {}.", id);
-        var transaction = await _transactionContext.Transactions.FindAsync(id);
+        var transaction = await _dbContext.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
@@ -167,7 +167,7 @@ public class TransactionsController(
             id,
             transactionDto
         );
-        _transactionContext.Entry(transaction).State = EntityState.Modified;
+        _dbContext.Entry(transaction).State = EntityState.Modified;
         transaction.Name = transactionDto.Name;
         transaction.Description = transactionDto.Description;
         transaction.Amount = transactionDto.Amount;
@@ -176,7 +176,7 @@ public class TransactionsController(
         try
         {
             _logger.LogInformation("Saving changes to transaction with ID {}.", id);
-            await _transactionContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException) when (!TransactionExists(id))
         {
@@ -223,8 +223,8 @@ public class TransactionsController(
         };
 
         _logger.LogInformation("Adding transaction with data: {}.", transactionDto);
-        _transactionContext.Transactions.Add(transaction);
-        await _transactionContext.SaveChangesAsync();
+        _dbContext.Transactions.Add(transaction);
+        await _dbContext.SaveChangesAsync();
 
         _logger.LogInformation("Successfully created transaction with ID {}.", transaction.Id);
         var location =
@@ -257,7 +257,7 @@ public class TransactionsController(
         }
 
         _logger.LogInformation("Deleting transaction with ID {}.", id);
-        var transaction = await _transactionContext.Transactions.FindAsync(id);
+        var transaction = await _dbContext.Transactions.FindAsync(id);
 
         if (transaction is null)
         {
@@ -278,8 +278,8 @@ public class TransactionsController(
         }
 
         _logger.LogInformation("Deleting transaction with ID {}.", id);
-        _transactionContext.Transactions.Remove(transaction);
-        await _transactionContext.SaveChangesAsync();
+        _dbContext.Transactions.Remove(transaction);
+        await _dbContext.SaveChangesAsync();
 
         _logger.LogInformation("Successfully deleted transaction with ID {}.", id);
         return TypedResults.NoContent();
@@ -290,6 +290,6 @@ public class TransactionsController(
     /// <returns>True if the transaction exists, false otherwise.</returns>
     private bool TransactionExists(Guid id)
     {
-        return _transactionContext.Transactions.Any(e => e.Id == id);
+        return _dbContext.Transactions.Any(e => e.Id == id);
     }
 }

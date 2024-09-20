@@ -1,3 +1,4 @@
+using ExpenseTrackerAPI.Common;
 using ExpenseTrackerAPI.Interfaces;
 using ExpenseTrackerAPI.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -10,19 +11,19 @@ namespace ExpenseTrackerAPI.Controllers;
 /// <summary>Controller for managing the currently authenticated user.</summary>
 /// <param name="logger">The logger.</param>
 /// <param name="authService">The authentication service.</param>
-/// <param name="transactionContext">The transaction context.</param>
+/// <param name="dbContext">The database context.</param>
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class MeController(
     ILogger<MeController> logger,
     IAuthService authService,
-    TransactionContext transactionContext
+    ApplicationDbContext dbContext
 ) : ControllerBase
 {
     private readonly ILogger<MeController> _logger = logger;
     private readonly IAuthService _authService = authService;
-    private readonly TransactionContext _transactionContext = transactionContext;
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
     /// <summary>Get the currently authenticated user.</summary>
     /// <returns>The currently authenticated user.</returns>
@@ -68,7 +69,7 @@ public class MeController(
             return TypedResults.Unauthorized();
         }
 
-        var transactionsQuery = _transactionContext.Transactions.Where(t => t.OwnerId == user.Id);
+        var transactionsQuery = _dbContext.Transactions.Where(t => t.OwnerId == user.Id);
 
         if (type is not null)
         {

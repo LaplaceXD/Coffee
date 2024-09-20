@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 namespace ExpenseTrackerAPI.Controllers;
 
 /// <summary>Controller for managing authentication.</summary>
-/// <param name="userContext">The user context.</param>
+/// <param name="dbContext">The database context.</param>
 /// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UserContext userContext, ILogger<AuthController> logger)
+public class AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger)
     : ControllerBase
 {
-    private readonly UserContext _userContext = userContext;
+    private readonly ApplicationDbContext _dbContext = dbContext;
     private readonly ILogger<AuthController> _logger = logger;
 
     /// <summary>Login a user.</summary>
@@ -36,7 +36,7 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     {
         _logger.LogInformation("Logging in user {}.", userLoginDto.Email);
 
-        var user = await _userContext
+        var user = await _dbContext
             .Users.Where(u => u.Email == userLoginDto.Email)
             .FirstOrDefaultAsync();
 
@@ -80,7 +80,7 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     {
         _logger.LogInformation("Registering user {}.", userRegisterDto.Email);
 
-        var existingUser = await _userContext
+        var existingUser = await _dbContext
             .Users.Where(u => u.Email == userRegisterDto.Email)
             .FirstOrDefaultAsync();
 
@@ -102,8 +102,8 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
             Password = userRegisterDto.Password,
         };
 
-        await _userContext.Users.AddAsync(user);
-        await _userContext.SaveChangesAsync();
+        await _dbContext.Users.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
 
         _logger.LogInformation("User {} registered.", user.Id);
         return TypedResults.Ok(user);

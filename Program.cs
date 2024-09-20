@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using ExpenseTrackerAPI.Common;
 using ExpenseTrackerAPI.Interfaces;
-using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Options;
 using ExpenseTrackerAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,7 +21,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddRouting(opts => opts.LowercaseUrls = true);
 builder.Services.AddControllers();
 
-var dbContextBuilder = new Action<DbContextOptionsBuilder>(opt =>
+builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 {
     opt.UseSqlite("DataSource=file::memory:?cache=shared");
 
@@ -34,9 +34,6 @@ var dbContextBuilder = new Action<DbContextOptionsBuilder>(opt =>
         );
     }
 });
-
-builder.Services.AddDbContext<TransactionContext>(dbContextBuilder);
-builder.Services.AddDbContext<UserContext>(dbContextBuilder);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
