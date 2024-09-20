@@ -8,7 +8,6 @@ using ExpenseTrackerAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -24,15 +23,6 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 {
     opt.UseSqlite("DataSource=file::memory:?cache=shared");
-
-    if (builder.Environment.IsDevelopment())
-    {
-        opt.LogTo(
-            Console.WriteLine,
-            LogLevel.Debug,
-            DbContextLoggerOptions.DefaultWithLocalTime | DbContextLoggerOptions.SingleLine
-        );
-    }
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -132,5 +122,19 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.Use(
+    async (context, next) =>
+    {
+        await next();
+        app.Logger.LogInformation(
+            "[{:yyyy-MM-dd HH:mm:ss}] {} {} => {}",
+            DateTime.Now,
+            context.Request.Method,
+            context.Request.Path,
+            context.Response.StatusCode
+        );
+    }
+);
 
 app.Run();
