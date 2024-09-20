@@ -10,7 +10,8 @@ public class UserContext : DbContext
 
     /// <summary>Initialize the user context.</summary>
     /// <param name="options">The options for this context.</param>
-    public UserContext(DbContextOptions<UserContext> options) : base(options)
+    public UserContext(DbContextOptions<UserContext> options)
+        : base(options)
     {
         Database.EnsureCreated();
     }
@@ -18,11 +19,10 @@ public class UserContext : DbContext
     /// <summary>Configure the user model.</summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
 
-        modelBuilder.Entity<User>()
+        modelBuilder
+            .Entity<User>()
             .HasMany(u => u.Transactions)
             .WithOne(t => t.Owner)
             .OnDelete(DeleteBehavior.Cascade);

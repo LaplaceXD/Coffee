@@ -1,18 +1,16 @@
-using System.Text.Json.Serialization;
 using System.Reflection;
 using System.Text;
-
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
+using System.Text.Json.Serialization;
 using ExpenseTrackerAPI.Interfaces;
+using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Options;
 using ExpenseTrackerAPI.Services;
-using ExpenseTrackerAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +30,8 @@ var dbContextBuilder = new Action<DbContextOptionsBuilder>(opt =>
         opt.LogTo(
             Console.WriteLine,
             LogLevel.Debug,
-            DbContextLoggerOptions.DefaultWithLocalTime | DbContextLoggerOptions.SingleLine);
+            DbContextLoggerOptions.DefaultWithLocalTime | DbContextLoggerOptions.SingleLine
+        );
     }
 });
 
@@ -42,38 +41,46 @@ builder.Services.AddDbContext<UserContext>(dbContextBuilder);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "ExpenseTrackerAPI",
-        Version = "v1",
-        Description = "A simple API to track expenses and income."
-    });
-
-    c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = JwtBearerDefaults.AuthenticationScheme,
-        In = ParameterLocation.Header,
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    c.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
-                },
-                Scheme = SecuritySchemeType.OAuth2.ToString(),
-                Name = JwtBearerDefaults.AuthenticationScheme,
-                In = ParameterLocation.Header
-            },
-            Array.Empty<string>()
+            Title = "ExpenseTrackerAPI",
+            Version = "v1",
+            Description = "A simple API to track expenses and income.",
         }
-    });
+    );
+
+    c.AddSecurityDefinition(
+        JwtBearerDefaults.AuthenticationScheme,
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = JwtBearerDefaults.AuthenticationScheme,
+            In = ParameterLocation.Header,
+        }
+    );
+
+    c.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                    },
+                    Scheme = SecuritySchemeType.OAuth2.ToString(),
+                    Name = JwtBearerDefaults.AuthenticationScheme,
+                    In = ParameterLocation.Header,
+                },
+                Array.Empty<string>()
+            },
+        }
+    );
 
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var filePath = Path.Combine(AppContext.BaseDirectory, "ExpenseTrackerAPI.xml");
@@ -92,24 +99,27 @@ builder.Services.Configure<JsonOptions>(options =>
 });
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
-builder.Services.AddAuthentication(opts =>
-{
-    opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(opts =>
-{
-    var jwtOptions = builder.Configuration.GetSection(JwtOptions.Section).Get<JwtOptions>()
-        ?? throw new InvalidOperationException("Jwt options are not set in configuration.");
-
-    opts.TokenValidationParameters = new TokenValidationParameters
+builder
+    .Services.AddAuthentication(opts =>
     {
-        ValidateIssuerSigningKey = true,
-        ValidateLifetime = true,
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
-    };
-});
+        opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(opts =>
+    {
+        var jwtOptions =
+            builder.Configuration.GetSection(JwtOptions.Section).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("Jwt options are not set in configuration.");
+
+        opts.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
+        };
+    });
 
 builder.Services.AddAuthorization();
 

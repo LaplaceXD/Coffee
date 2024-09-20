@@ -15,7 +15,11 @@ public class User
 
     /// <summary>The name of the user.</summary>
     [Required(ErrorMessage = "Name is required.")]
-    [StringLength(1024, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 255 characters.")]
+    [StringLength(
+        1024,
+        MinimumLength = 1,
+        ErrorMessage = "Name must be between 1 and 255 characters."
+    )]
     public required string Name { get; set; }
 
     /// <summary>The email of the user.</summary>
@@ -25,6 +29,7 @@ public class User
     public required string Email { get; set; }
 
     private string _password = string.Empty;
+
     /// <summary>The password of the user.</summary>
     [JsonIgnore]
     public string Password

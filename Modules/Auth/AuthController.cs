@@ -1,11 +1,10 @@
+using ExpenseTrackerAPI.Common;
+using ExpenseTrackerAPI.Dtos;
+using ExpenseTrackerAPI.Interfaces;
+using ExpenseTrackerAPI.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http.HttpResults;
-
-using ExpenseTrackerAPI.Dtos;
-using ExpenseTrackerAPI.Models;
-using ExpenseTrackerAPI.Common;
-using ExpenseTrackerAPI.Interfaces;
 
 namespace ExpenseTrackerAPI.Controllers;
 
@@ -14,7 +13,8 @@ namespace ExpenseTrackerAPI.Controllers;
 /// <param name="logger">The logger.</param>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(UserContext userContext, ILogger<AuthController> logger) : ControllerBase
+public class AuthController(UserContext userContext, ILogger<AuthController> logger)
+    : ControllerBase
 {
     private readonly UserContext _userContext = userContext;
     private readonly ILogger<AuthController> _logger = logger;
@@ -29,24 +29,31 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     [HttpPost("login")]
     [ProducesResponseType(typeof(UserTokenDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-    public async Task<Results<BadRequest<ErrorResponse>, Ok<UserTokenDto>>> Login(UserLoginDto userLoginDto, [FromServices] IJwtService jwtService)
+    public async Task<Results<BadRequest<ErrorResponse>, Ok<UserTokenDto>>> Login(
+        UserLoginDto userLoginDto,
+        [FromServices] IJwtService jwtService
+    )
     {
         _logger.LogInformation("Logging in user {}.", userLoginDto.Email);
 
-        var user = await _userContext.Users
-            .Where(u => u.Email == userLoginDto.Email)
+        var user = await _userContext
+            .Users.Where(u => u.Email == userLoginDto.Email)
             .FirstOrDefaultAsync();
 
         if (user is null)
         {
             _logger.LogInformation("User {} not found.", userLoginDto.Email);
-            return TypedResults.BadRequest(new ErrorResponse { Message = "Invalid user credentials." });
+            return TypedResults.BadRequest(
+                new ErrorResponse { Message = "Invalid user credentials." }
+            );
         }
 
         if (!user.VerifyPassword(userLoginDto.Password))
         {
             _logger.LogInformation("User {} provided an incorrect password.", userLoginDto.Email);
-            return TypedResults.BadRequest(new ErrorResponse { Message = "Invalid user credentials." });
+            return TypedResults.BadRequest(
+                new ErrorResponse { Message = "Invalid user credentials." }
+            );
         }
 
         _logger.LogInformation("Generating access token of user {}...", user.Id);
@@ -67,25 +74,32 @@ public class AuthController(UserContext userContext, ILogger<AuthController> log
     [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status409Conflict)]
-    public async Task<Results<BadRequest, Conflict<ErrorResponse>, Ok<User>>> Register(UserRegisterDto userRegisterDto)
+    public async Task<Results<BadRequest, Conflict<ErrorResponse>, Ok<User>>> Register(
+        UserRegisterDto userRegisterDto
+    )
     {
         _logger.LogInformation("Registering user {}.", userRegisterDto.Email);
 
-        var existingUser = await _userContext.Users
-            .Where(u => u.Email == userRegisterDto.Email)
+        var existingUser = await _userContext
+            .Users.Where(u => u.Email == userRegisterDto.Email)
             .FirstOrDefaultAsync();
 
         if (existingUser is not null)
         {
-            _logger.LogInformation("User with the same email {} already exists.", userRegisterDto.Email);
-            return TypedResults.Conflict(new ErrorResponse { Message = "Email is already in-use." });
+            _logger.LogInformation(
+                "User with the same email {} already exists.",
+                userRegisterDto.Email
+            );
+            return TypedResults.Conflict(
+                new ErrorResponse { Message = "Email is already in-use." }
+            );
         }
 
         var user = new User
         {
             Name = userRegisterDto.Name,
             Email = userRegisterDto.Email,
-            Password = userRegisterDto.Password
+            Password = userRegisterDto.Password,
         };
 
         await _userContext.Users.AddAsync(user);

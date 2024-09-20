@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
+using ExpenseTrackerAPI.Interfaces;
+using ExpenseTrackerAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using ExpenseTrackerAPI.Models;
-using ExpenseTrackerAPI.Interfaces;
 
 namespace ExpenseTrackerAPI.Controllers;
 
@@ -15,7 +14,11 @@ namespace ExpenseTrackerAPI.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class MeController(ILogger<MeController> logger, IAuthService authService, TransactionContext transactionContext) : ControllerBase
+public class MeController(
+    ILogger<MeController> logger,
+    IAuthService authService,
+    TransactionContext transactionContext
+) : ControllerBase
 {
     private readonly ILogger<MeController> _logger = logger;
     private readonly IAuthService _authService = authService;
@@ -54,7 +57,9 @@ public class MeController(ILogger<MeController> logger, IAuthService authService
     [ProducesResponseType(typeof(IEnumerable<Transaction>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<Results<BadRequest, UnauthorizedHttpResult, Ok<IEnumerable<Transaction>>>> GetTransactions([FromQuery] string? type)
+    public async Task<
+        Results<BadRequest, UnauthorizedHttpResult, Ok<IEnumerable<Transaction>>>
+    > GetTransactions([FromQuery] string? type)
     {
         var user = await _authService.GetUser();
         if (user is null)
@@ -63,8 +68,7 @@ public class MeController(ILogger<MeController> logger, IAuthService authService
             return TypedResults.Unauthorized();
         }
 
-        var transactionsQuery = _transactionContext.Transactions
-            .Where(t => t.OwnerId == user.Id);
+        var transactionsQuery = _transactionContext.Transactions.Where(t => t.OwnerId == user.Id);
 
         if (type is not null)
         {

@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ExpenseTrackerAPI.Models;
 
@@ -10,8 +10,9 @@ public enum TransactionType
 {
     /// <summary>An expense transaction.</summary>
     Expense,
+
     /// <summary>An income transaction.</summary>
-    Income
+    Income,
 }
 
 /// <summary>A transaction model.</summary>
@@ -26,12 +27,19 @@ public class Transaction
     /// <summary>The name of the transaction.</summary>
     /// <example>Lunch</example>
     [Required(ErrorMessage = "Name is required.")]
-    [StringLength(255, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 255 characters.")]
+    [StringLength(
+        255,
+        MinimumLength = 1,
+        ErrorMessage = "Name must be between 1 and 255 characters."
+    )]
     public required string Name { get; set; }
 
     /// <summary>The description of the transaction.</summary>
     /// <example>I had lechon for lunch.</example>
-    [StringLength(4096, ErrorMessage = "Description must be less than or equal to 4096 characters.")]
+    [StringLength(
+        4096,
+        ErrorMessage = "Description must be less than or equal to 4096 characters."
+    )]
     [Column(TypeName = "TEXT")]
     public string Description { get; set; } = string.Empty;
 
@@ -63,4 +71,3 @@ public class Transaction
     [JsonIgnore]
     public User Owner { get; set; } = null!;
 }
-

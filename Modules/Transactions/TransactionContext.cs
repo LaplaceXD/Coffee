@@ -10,7 +10,8 @@ public class TransactionContext : DbContext
 
     /// <summary>Initialize the transaction context.</summary>
     /// <param name="options">The options for this context.</param>
-    public TransactionContext(DbContextOptions<TransactionContext> options) : base(options)
+    public TransactionContext(DbContextOptions<TransactionContext> options)
+        : base(options)
     {
         Database.EnsureCreated();
     }
@@ -18,11 +19,11 @@ public class TransactionContext : DbContext
     /// <summary>Configure the model.</summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Transaction>()
+        modelBuilder
+            .Entity<Transaction>()
             .HasOne(t => t.Owner)
             .WithMany(u => u.Transactions)
             .HasForeignKey(t => t.OwnerId)
             .IsRequired();
     }
 }
-

@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-
+using ExpenseTrackerAPI.Common;
 using ExpenseTrackerAPI.Dtos;
-using ExpenseTrackerAPI.Models;
 using ExpenseTrackerAPI.Interfaces;
+using ExpenseTrackerAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTrackerAPI.Controllers;
 
@@ -16,7 +16,11 @@ namespace ExpenseTrackerAPI.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TransactionsController(TransactionContext transactionContext, IAuthService authService, ILogger<TransactionsController> logger) : ControllerBase
+public class TransactionsController(
+    TransactionContext transactionContext,
+    IAuthService authService,
+    ILogger<TransactionsController> logger
+) : ControllerBase
 {
     private readonly TransactionContext _transactionContext = transactionContext;
     private readonly IAuthService _authService = authService;
@@ -31,8 +35,10 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(IEnumerable<Transaction>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<Results<BadRequest, Ok<IEnumerable<Transaction>>>> GetTransactions([FromQuery] string? type)
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    public async Task<
+        Results<BadRequest<ErrorResponse>, Ok<IEnumerable<Transaction>>>
+    > GetTransactions([FromQuery] string? type)
     {
         var transactionsQuery = _transactionContext.Transactions.AsQueryable();
 
@@ -41,7 +47,9 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
             if (!Enum.TryParse<TransactionType>(type, true, out var transactionType))
             {
                 _logger.LogWarning("Invalid transaction type: {}.", type);
-                return TypedResults.BadRequest();
+                return TypedResults.BadRequest(
+                    new ErrorResponse { Message = "Invalid transaction type." }
+                );
             }
 
             _logger.LogInformation("Filtering transactions by type: {}.", transactionType);
@@ -69,8 +77,10 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     [ProducesResponseType(typeof(Transaction), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<Results<UnauthorizedHttpResult, ForbidHttpResult, NotFound, Ok<Transaction>>> GetTransaction(Guid id)
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<
+        Results<UnauthorizedHttpResult, ForbidHttpResult, NotFound<ErrorResponse>, Ok<Transaction>>
+    > GetTransaction(Guid id)
     {
         var user = await _authService.GetUser();
         if (user is null)
@@ -85,12 +95,18 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
         if (transaction is null)
         {
             _logger.LogInformation("No transaction with ID {} was found.", id);
-            return TypedResults.NotFound();
+            return TypedResults.NotFound(
+                new ErrorResponse { Message = "No transaction with the specified ID was found." }
+            );
         }
 
         if (transaction.OwnerId != user.Id)
         {
-            _logger.LogInformation("User {} does not have access to transaction with ID {}.", user.Id, id);
+            _logger.LogInformation(
+                "User {} does not have access to transaction with ID {}.",
+                user.Id,
+                id
+            );
             return TypedResults.Forbid();
         }
 
@@ -113,8 +129,10 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<Results<UnauthorizedHttpResult, ForbidHttpResult, NotFound, Ok<Transaction>>> PutTransaction(Guid id, TransactionDto transactionDto)
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<
+        Results<UnauthorizedHttpResult, ForbidHttpResult, NotFound<ErrorResponse>, Ok<Transaction>>
+    > PutTransaction(Guid id, TransactionDto transactionDto)
     {
         var user = await _authService.GetUser();
         if (user is null)
@@ -129,16 +147,26 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
         if (transaction is null)
         {
             _logger.LogInformation("No transaction with ID {} was found.", id);
-            return TypedResults.NotFound();
+            return TypedResults.NotFound(
+                new ErrorResponse { Message = "No transaction with the specified ID was found." }
+            );
         }
 
         if (transaction.OwnerId != user.Id)
         {
-            _logger.LogInformation("User {} does not have access to transaction with ID {}.", user.Id, id);
+            _logger.LogInformation(
+                "User {} does not have access to transaction with ID {}.",
+                user.Id,
+                id
+            );
             return TypedResults.Forbid();
         }
 
-        _logger.LogInformation("Updating transaction with ID {} with data: {}.", id, transactionDto);
+        _logger.LogInformation(
+            "Updating transaction with ID {} with data: {}.",
+            id,
+            transactionDto
+        );
         _transactionContext.Entry(transaction).State = EntityState.Modified;
         transaction.Name = transactionDto.Name;
         transaction.Description = transactionDto.Description;
@@ -153,7 +181,9 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
         catch (DbUpdateConcurrencyException) when (!TransactionExists(id))
         {
             _logger.LogWarning("No transaction with ID {} was found.", id);
-            return TypedResults.NotFound();
+            return TypedResults.NotFound(
+                new ErrorResponse { Message = "No transaction with the specified ID was found." }
+            );
         }
 
         _logger.LogInformation("Successfully updated transaction with ID {}.", id);
@@ -171,7 +201,9 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     [ProducesResponseType(typeof(Transaction), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<Results<UnauthorizedHttpResult, Created<Transaction>>> PostTransaction(TransactionDto transactionDto)
+    public async Task<Results<UnauthorizedHttpResult, Created<Transaction>>> PostTransaction(
+        TransactionDto transactionDto
+    )
     {
         var user = await _authService.GetUser();
         if (user is null)
@@ -187,7 +219,7 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
             OwnerId = user.Id,
             Description = transactionDto.Description,
             Amount = transactionDto.Amount,
-            Type = Enum.Parse<TransactionType>(transactionDto.Type, true)
+            Type = Enum.Parse<TransactionType>(transactionDto.Type, true),
         };
 
         _logger.LogInformation("Adding transaction with data: {}.", transactionDto);
@@ -195,7 +227,8 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
         await _transactionContext.SaveChangesAsync();
 
         _logger.LogInformation("Successfully created transaction with ID {}.", transaction.Id);
-        var location = Url.Action(nameof(GetTransaction), new { id = transaction.Id }) ?? $"/{transaction.Id}";
+        var location =
+            Url.Action(nameof(GetTransaction), new { id = transaction.Id }) ?? $"/{transaction.Id}";
         return TypedResults.Created(location, transaction);
     }
 
@@ -211,8 +244,10 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<Results<UnauthorizedHttpResult, ForbidHttpResult, NotFound, NoContent>> DeleteTransaction(Guid id)
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<
+        Results<UnauthorizedHttpResult, ForbidHttpResult, NotFound<ErrorResponse>, NoContent>
+    > DeleteTransaction(Guid id)
     {
         var user = await _authService.GetUser();
         if (user is null)
@@ -227,12 +262,18 @@ public class TransactionsController(TransactionContext transactionContext, IAuth
         if (transaction is null)
         {
             _logger.LogInformation("No transaction with ID {} was found.", id);
-            return TypedResults.NotFound();
+            return TypedResults.NotFound(
+                new ErrorResponse { Message = "No transaction with the specified ID was found." }
+            );
         }
 
         if (transaction.OwnerId != user.Id)
         {
-            _logger.LogInformation("User {} does not have access to transaction with ID {}.", user.Id, id);
+            _logger.LogInformation(
+                "User {} does not have access to transaction with ID {}.",
+                user.Id,
+                id
+            );
             return TypedResults.Forbid();
         }
 
