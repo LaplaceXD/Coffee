@@ -117,15 +117,15 @@ public class TransactionsController(
     /// <summary>Update a transaction by its ID.</summary>
     /// <param name="id">The ID of the transaction to update.</param>
     /// <param name="transactionDto">The updated transaction data.</param>
-    /// <returns>No content.</returns>
+    /// <returns>The updated transaction.</returns>
     ///
-    /// <response code="204">The transaction was updated successfully.</response>
+    /// <response code="200">The transaction was updated successfully.</response>
     /// <response code="400">The transaction data was invalid.</response>
     /// <response code="401">The user is not authenticated.</response>
     /// <response code="403">The user does not have access to the transaction with the specified ID.</response>
     /// <response code="404">No transaction with the specified ID was found.</response>
     [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Transaction), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
