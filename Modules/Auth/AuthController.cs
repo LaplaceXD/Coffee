@@ -9,16 +9,13 @@ using Microsoft.EntityFrameworkCore;
 namespace ExpenseTrackerAPI.Controllers;
 
 /// <summary>Controller for managing authentication.</summary>
-/// <param name="dbContext">The database context.</param>
-/// <param name="logger">The logger.</param>
+/// <param name="Context">The database context.</param>
+/// <param name="Logger">The logger.</param>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(ApplicationDbContext dbContext, ILogger<AuthController> logger)
+public class AuthController(ApplicationDbContext Context, ILogger<AuthController> Logger)
     : ControllerBase
 {
-    private readonly ApplicationDbContext _dbContext = dbContext;
-    private readonly ILogger<AuthController> _logger = logger;
-
     /// <summary>Login a user.</summary>
     /// <param name="userLoginDto">The user login data.</param>
     /// <param name="jwtService">The JWT service for working with user token.</param>
@@ -34,15 +31,15 @@ public class AuthController(ApplicationDbContext dbContext, ILogger<AuthControll
         [FromServices] IJwtService jwtService
     )
     {
-        _logger.LogInformation("Logging in user {}.", userLoginDto.Email);
+        Logger.LogInformation("Logging in user {}.", userLoginDto.Email);
 
-        var user = await _dbContext
+        var user = await Context
             .Users.Where(u => u.Email == userLoginDto.Email)
             .FirstOrDefaultAsync();
 
         if (user is null)
         {
-            _logger.LogInformation("User {} not found.", userLoginDto.Email);
+            Logger.LogInformation("User {} not found.", userLoginDto.Email);
             return TypedResults.BadRequest(
                 new ErrorResponse { Message = "Invalid user credentials." }
             );
@@ -50,16 +47,16 @@ public class AuthController(ApplicationDbContext dbContext, ILogger<AuthControll
 
         if (!user.VerifyPassword(userLoginDto.Password))
         {
-            _logger.LogInformation("User {} provided an incorrect password.", userLoginDto.Email);
+            Logger.LogInformation("User {} provided an incorrect password.", userLoginDto.Email);
             return TypedResults.BadRequest(
                 new ErrorResponse { Message = "Invalid user credentials." }
             );
         }
 
-        _logger.LogInformation("Generating access token of user {}...", user.Id);
+        Logger.LogInformation("Generating access token of user {}...", user.Id);
         var token = jwtService.GenerateToken(user.Id.ToString());
 
-        _logger.LogInformation("User {} logged in.", user.Id);
+        Logger.LogInformation("User {} logged in.", user.Id);
         return TypedResults.Ok(new UserTokenDto { Token = token });
     }
 
@@ -78,15 +75,15 @@ public class AuthController(ApplicationDbContext dbContext, ILogger<AuthControll
         UserRegisterDto userRegisterDto
     )
     {
-        _logger.LogInformation("Registering user {}.", userRegisterDto.Email);
+        Logger.LogInformation("Registering user {}.", userRegisterDto.Email);
 
-        var existingUser = await _dbContext
+        var existingUser = await Context
             .Users.Where(u => u.Email == userRegisterDto.Email)
             .FirstOrDefaultAsync();
 
         if (existingUser is not null)
         {
-            _logger.LogInformation(
+            Logger.LogInformation(
                 "User with the same email {} already exists.",
                 userRegisterDto.Email
             );
@@ -102,10 +99,10 @@ public class AuthController(ApplicationDbContext dbContext, ILogger<AuthControll
             Password = userRegisterDto.Password,
         };
 
-        await _dbContext.Users.AddAsync(user);
-        await _dbContext.SaveChangesAsync();
+        await Context.Users.AddAsync(user);
+        await Context.SaveChangesAsync();
 
-        _logger.LogInformation("User {} registered.", user.Id);
+        Logger.LogInformation("User {} registered.", user.Id);
         return TypedResults.Ok(user);
     }
 }
